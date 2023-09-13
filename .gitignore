@@ -3,6 +3,25 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Local environment
+ffmpeg.exe
+ffprobe.exe
+.idea
+
+# Audio
+*.mp3
+*.aac
+*.m4a
+*.wav
+*.flac
+*.ogg
+*.ac3
+*.wma
+*.aiff
+*.mka
+*.mp2
+
+
 # C extensions
 *.so
 

@@ -55,7 +55,7 @@
 ## About The Project
 
 <p align="center">
-<img src="https://github.com/itakurah/FastAudioMerge/blob/main/images/screenshot.jpg"  width="80%" height="80%">
+<img src="https://github.com/itakurah/FastAudioMerge/blob/main/images/screenshot.jpg"  width="50%" height="50%">
 </p>
 FastAudioMerge allows you to concatenate and encode multiple audio files into a single file using FFmpeg. It supports a wide range of audio formats, including mp3, aac, m4a, wav, flac, ogg, ac3, wma, aiff, mka, and mp2.
 

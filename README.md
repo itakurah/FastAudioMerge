@@ -54,8 +54,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
+<p align="center">
+<img src="https://github.com/itakurah/FastAudioMerge/blob/main/images/screenshot.jpg"  width="80%" height="80%">
+</p>
 FastAudioMerge allows you to concatenate and encode multiple audio files into a single file using FFmpeg. It supports a wide range of audio formats, including mp3, aac, m4a, wav, flac, ogg, ac3, wma, aiff, mka, and mp2.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -140,6 +141,5 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[product-screenshot]: images/screenshot.jpg
 [Python]: https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54
 [Python-url]: https://www.python.org/

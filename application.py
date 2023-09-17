@@ -231,7 +231,7 @@ class AudioFileDropWidget(QWidget):
         model = self.list_view.model()
         all_items = []
         for row in range(model.rowCount()):
-            index = model.index(row, 0)
+            index = model.index(row, 0)  # Assuming a single-column list view
             item = model.data(index)
             all_items.append(item)
 
@@ -242,10 +242,10 @@ class AudioFileDropWidget(QWidget):
             raise ValueError("Invalid output format")
         output_codec = format_mapping[output_format]["codec"]
 
-        print("f" + self.output_file)
+        print("f"+self.output_file)
         if self.output_filename_input.text():
             self.output_file = remove_extension(self.output_filename_input.text())
-        print("ff" + self.output_file)
+        print("ff"+self.output_file)
 
         # Create input streams for selected files
         for file_path in self.audio_files.values():
@@ -310,6 +310,7 @@ class AudioFileDropApp(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     extra = {
+
         # Density Scale
         'density_scale': '-1',
     }

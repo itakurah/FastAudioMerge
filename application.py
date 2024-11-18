@@ -50,6 +50,8 @@ class AudioFileDropWidget(QWidget):
         self.add_files_button = QPushButton("Add Files")
         self.label_format = QLabel('Select audio output format:')
         self.format_combo_box = QComboBox()
+        self.move_up_button = QPushButton("Move Up")
+        self.move_down_button = QPushButton("Move Down")
         self.output_filename_input = QLineEdit(self)
         self.merge_button = QPushButton("Merge Audio")
         self.debug_label = QLabel("FFmpeg debug Information:")
@@ -71,28 +73,32 @@ class AudioFileDropWidget(QWidget):
         self.list_view.setFixedHeight(200)
         self.list_view.setSpacing(0)
         self.list_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.list_view.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.list_view.setSelectionMode(QAbstractItemView.SingleSelection)
         list_view_layout.addWidget(self.list_view)
 
-        # Create a QVBoxLayout for the "Remove Selected" and "Add Files" buttons
+        # Create a QVBoxLayout for the control buttons
         buttons_layout = QVBoxLayout()
 
-        # Add a "Remove" button
+        # Add control buttons
         self.remove_button.clicked.connect(self.remove_selected_items)
         buttons_layout.addWidget(self.remove_button)
 
-        # Add a "Remove All" button to open a file dialog
         self.remove_all_button.clicked.connect(self.remove_all_items)
         buttons_layout.addWidget(self.remove_all_button)
 
-        # Add a "Add Files" button to open a file dialog
         self.add_files_button.clicked.connect(self.add_files_dialog)
         buttons_layout.addWidget(self.add_files_button)
 
-        list_view_layout.addLayout(buttons_layout)
-        buttons_layout.setSpacing(0)
+        # Add move up and move down buttons
+        self.move_up_button.clicked.connect(self.move_item_up)
+        buttons_layout.addWidget(self.move_up_button)
 
-        layout.addLayout(list_view_layout)  # Add the QHBoxLayout to the main layout
+        self.move_down_button.clicked.connect(self.move_item_down)
+        buttons_layout.addWidget(self.move_down_button)
+
+        list_view_layout.addLayout(buttons_layout)
+
+        layout.addLayout(list_view_layout)
 
         layout.addWidget(self.label_format)
 
@@ -104,7 +110,6 @@ class AudioFileDropWidget(QWidget):
 
         # Create a QLineEdit widget for entering the output filename
         self.output_filename_input.setMaxLength(80)
-        # self.output_filename_input.setStyleSheet("color: white;")
         self.output_filename_input.setPlaceholderText("Enter output filename (default name: output.*)")
         layout.addWidget(self.output_filename_input)
         self.format_combo_box.currentTextChanged.connect(self.update_line_edit)
@@ -135,13 +140,47 @@ class AudioFileDropWidget(QWidget):
         self.setAcceptDrops(True)
 
         self.list_view.setModel(self.model)
-        # Connect a signal to update button state
         self.list_view.model().rowsInserted.connect(self.update_button_state)
         self.list_view.model().rowsRemoved.connect(self.update_button_state)
         self.list_view.model().modelReset.connect(self.update_button_state)
         self.update_button_state()
-        print(self.model.rowCount())
         self.check_ffmpeg()
+
+    def move_item_up(self):
+        selected_indexes = self.list_view.selectedIndexes()
+        if selected_indexes:
+            current_index = selected_indexes[0]
+            row = current_index.row()
+            if row > 0:
+                # Swap items in the model
+                self.model.insertRow(row - 1, self.model.takeRow(row))
+                
+                # Update the internal dictionary order
+                keys = list(self.audio_files.keys())
+                keys[row - 1], keys[row] = keys[row], keys[row - 1]
+                self.audio_files = {key: self.audio_files[key] for key in keys}
+                
+                # Update selection
+                new_index = self.model.index(row - 1, 0)
+                self.list_view.setCurrentIndex(new_index)
+
+    def move_item_down(self):
+        selected_indexes = self.list_view.selectedIndexes()
+        if selected_indexes:
+            current_index = selected_indexes[0]
+            row = current_index.row()
+            if row < self.model.rowCount() - 1:
+                # Swap items in the model
+                self.model.insertRow(row + 1, self.model.takeRow(row))
+                
+                # Update the internal dictionary order
+                keys = list(self.audio_files.keys())
+                keys[row], keys[row + 1] = keys[row + 1], keys[row]
+                self.audio_files = {key: self.audio_files[key] for key in keys}
+                
+                # Update selection
+                new_index = self.model.index(row + 1, 0)
+                self.list_view.setCurrentIndex(new_index)
 
     # Check for FFmpeg
     def check_ffmpeg(self):
@@ -235,17 +274,13 @@ class AudioFileDropWidget(QWidget):
             item = model.data(index)
             all_items.append(item)
 
-        # Now, the all_items list contains all items in the QListView
-        print(all_items)
         output_format = self.format_combo_box.currentText()
         if output_format not in format_mapping:
             raise ValueError("Invalid output format")
         output_codec = format_mapping[output_format]["codec"]
 
-        print("f"+self.output_file)
         if self.output_filename_input.text():
             self.output_file = remove_extension(self.output_filename_input.text())
-        print("ff"+self.output_file)
 
         # Create input streams for selected files
         for file_path in self.audio_files.values():

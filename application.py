@@ -106,6 +106,26 @@ class AudioFileDropWidget(QWidget):
         self.format_combo_box.setView(QListView())
         self.format_combo_box.setFixedWidth(100)
         self.format_combo_box.addItems(extensions)
+        self.format_combo_box.setStyleSheet("""
+    QComboBox {
+        background: #2d2d2d; 
+        color: white;       
+        border: 1px solid gray;
+    }
+    QComboBox:hover {
+        border: 1px solid lightblue;
+    }
+    QComboBox:!enabled {
+        background: #2d2d2d;
+        color: gray;        
+    }
+    QComboBox QAbstractItemView {
+        background: #2d2d2d;
+        color: white;
+        selection-background-color: lightblue;
+        selection-color: black;
+    }
+""")
         layout.addWidget(self.format_combo_box)
 
         # Create a QLineEdit widget for entering the output filename

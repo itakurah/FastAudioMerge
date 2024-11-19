@@ -9,10 +9,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLa
     QComboBox, QAbstractItemView, QHBoxLayout, QFileDialog, QLineEdit, QSizePolicy
 from thread_merge import AudioMergeThread
 
-# Set logging level to info
 logging.getLogger().setLevel(logging.INFO)
 
-# Define a dictionary to map formats to FFmpeg codecs and extensions
 format_mapping = {
     "mp3": {"codec": "libmp3lame", "extension": "mp3"},
     "aac": {"codec": "aac", "extension": "aac"},
@@ -65,7 +63,7 @@ class AudioFileDropWidget(QWidget):
         self.debug_label.setStyleSheet("font-weight: bold")
         self.ffmpeg_output = QTextEdit(self)
         self.model = QStandardItemModel()
-        self.audio_files = {}  # Dictionary to store title-filepath pairs
+        self.audio_files = {}
         self.output_file = "output"
         self.merge_thread = None
         self.init_ui()
@@ -88,26 +86,19 @@ class AudioFileDropWidget(QWidget):
 
         # Add control buttons
         self.remove_button.clicked.connect(self.remove_selected_items)
-        self.remove_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        buttons_layout.addWidget(self.remove_button)
 
         self.remove_all_button.clicked.connect(self.remove_all_items)
-        self.remove_all_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        buttons_layout.addWidget(self.remove_all_button)
 
         self.add_files_button.clicked.connect(self.add_files_dialog)
-        self.add_files_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        buttons_layout.addWidget(self.add_files_button)
 
-        # Add move up and move down buttons
         self.move_up_button.clicked.connect(self.move_item_up)
-        self.move_up_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        buttons_layout.addWidget(self.move_up_button)
 
         self.move_down_button.clicked.connect(self.move_item_down)
-        self.move_down_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        buttons_layout.addWidget(self.move_down_button)
 
+        for button in [self.remove_button, self.remove_all_button, self.add_files_button,
+                       self.move_up_button, self.move_down_button]:
+            button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            buttons_layout.addWidget(button)
 
         list_view_layout.addLayout(buttons_layout)
 
@@ -128,7 +119,6 @@ class AudioFileDropWidget(QWidget):
         self.format_combo_box.currentTextChanged.connect(self.update_line_edit)
         self.update_line_edit()
 
-        # Add a "Merge" button
         self.merge_button.clicked.connect(self.merge_selected_items)
         layout.addWidget(self.merge_button)
 
@@ -136,16 +126,7 @@ class AudioFileDropWidget(QWidget):
 
         # Create a QTextEdit widget to display FFmpeg output
         self.ffmpeg_output.setFixedHeight(200)
-        font = "Cascadia Mono"
-        self.ffmpeg_output.setStyleSheet("QTextEdit{"
-                                         "font: Cascadia Mono;"
-                                         "color: green;"
-                                         "background-color: black}")
-        if font not in QFontDatabase().families():
-            self.ffmpeg_output.setStyleSheet("QTextEdit{"
-                                             "font: Monospace;"
-                                             "color: green;"
-                                             "background-color: black}")
+        self.set_normal_output()
         self.ffmpeg_output.setReadOnly(True)
         layout.addWidget(self.ffmpeg_output)
 
@@ -159,7 +140,6 @@ class AudioFileDropWidget(QWidget):
         self.update_button_state()
         self.check_ffmpeg()
 
-
     def move_item_up(self):
         selected_indexes = self.list_view.selectedIndexes()
         if selected_indexes:
@@ -168,12 +148,12 @@ class AudioFileDropWidget(QWidget):
             if row > 0:
                 # Swap items in the model
                 self.model.insertRow(row - 1, self.model.takeRow(row))
-                
+
                 # Update the internal dictionary order
                 keys = list(self.audio_files.keys())
                 keys[row - 1], keys[row] = keys[row], keys[row - 1]
                 self.audio_files = {key: self.audio_files[key] for key in keys}
-                
+
                 # Update selection
                 new_index = self.model.index(row - 1, 0)
                 self.list_view.setCurrentIndex(new_index)
@@ -186,12 +166,12 @@ class AudioFileDropWidget(QWidget):
             if row < self.model.rowCount() - 1:
                 # Swap items in the model
                 self.model.insertRow(row + 1, self.model.takeRow(row))
-                
+
                 # Update the internal dictionary order
                 keys = list(self.audio_files.keys())
                 keys[row], keys[row + 1] = keys[row + 1], keys[row]
                 self.audio_files = {key: self.audio_files[key] for key in keys}
-                
+
                 # Update selection
                 new_index = self.model.index(row + 1, 0)
                 self.list_view.setCurrentIndex(new_index)
@@ -207,6 +187,30 @@ class AudioFileDropWidget(QWidget):
             self.output_filename_input.setEnabled(False)
             self.ffmpeg_output.setText("FFmpeg was not found in the current folder")
             self.ffmpeg_output.setStyleSheet('QTextEdit{color: red;}')
+
+    def set_normal_output(self):
+        font = "Cascadia Mono"
+        self.ffmpeg_output.setStyleSheet("QTextEdit{"
+                                         "font: Cascadia Mono;"
+                                         "color: green;"
+                                         "background-color: black;}")
+        if font not in QFontDatabase().families():
+            self.ffmpeg_output.setStyleSheet("QTextEdit{"
+                                             "font: Monospace;"
+                                             "color: green;"
+                                             "background-color: black;}")
+
+    def set_error_output(self, message):
+        self.ffmpeg_output.setStyleSheet("QTextEdit{"
+                                         "font: Cascadia Mono;"
+                                         "color: red;"
+                                         "background-color: black;}")
+        if "Cascadia Mono" not in QFontDatabase().families():
+            self.ffmpeg_output.setStyleSheet("QTextEdit{"
+                                             "font: Monospace;"
+                                             "color: red;"
+                                             "background-color: black;}")
+        self.ffmpeg_output.setText(message)
 
     def update_line_edit(self):
         self.output_filename_input.setPlaceholderText(
@@ -284,7 +288,7 @@ class AudioFileDropWidget(QWidget):
         model = self.list_view.model()
         all_items = []
         for row in range(model.rowCount()):
-            index = model.index(row, 0)  # Assuming a single-column list view
+            index = model.index(row, 0)
             item = model.data(index)
             all_items.append(item)
 
@@ -295,25 +299,35 @@ class AudioFileDropWidget(QWidget):
 
         if self.output_filename_input.text():
             self.output_file = remove_extension(self.output_filename_input.text())
+        else:
+            self.output_file = "output"
 
-        # Create input streams for selected files
-        for file_path in self.audio_files.values():
-            print(file_path)
+        output_filename = f"{self.output_file}.{output_format}"
 
-        # Check for running thread
-        if self.merge_thread:
-            self.ffmpeg_output.setText('Merging already in progress!')
-            return
-        self.merge_thread = AudioMergeThread(
-            self.audio_files.values(),
-            self.output_file,
-            output_format,
-            output_codec
-        )
+        # Check for filename conflict
+        output_path = os.path.abspath(output_filename)
+        for title, file_path in self.audio_files.items():
+            if os.path.abspath(file_path) == output_path:
+                self.set_error_output("Error: Output filename conflicts with an input file.")
+                self.reset_merge_buttons()
+                return
 
-        # Connect the thread's finished signal to append out or err when they are not None
+        # Proceed with encoding
+        self.set_normal_output()
+        self.ffmpeg_output.setText("Audio file encoding in progress..")
+        self.merge_thread = AudioMergeThread(self.audio_files.values(), self.output_file, output_format, output_codec)
         self.merge_thread.finished.connect(self.thread_merge_finished)
         self.merge_thread.start()
+
+    def reset_merge_buttons(self):
+        """Re-enables the buttons and input fields after a failed merge attempt."""
+        self.add_files_button.setEnabled(True)
+        self.remove_button.setEnabled(True)
+        self.remove_all_button.setEnabled(True)
+        self.output_filename_input.setEnabled(True)
+        self.ffmpeg_output.setEnabled(True)
+        self.merge_button.setEnabled(True)
+        self.format_combo_box.setEnabled(True)
 
     def thread_merge_finished(self, out, err):
         self.ffmpeg_output.append(err) if err else self.ffmpeg_output.append(out) if out else self.ffmpeg_output.append(
@@ -348,7 +362,7 @@ class AudioFileDropApp(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setGeometry(100, 100, 400, 400)  # Increased the height to accommodate the QTextEdit
+        self.setGeometry(100, 100, 400, 400)
         self.setWindowTitle('FastAudioMerge')
         central_widget = AudioFileDropWidget()
         self.setCentralWidget(central_widget)

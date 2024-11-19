@@ -2,12 +2,11 @@ import logging
 import os
 import os.path
 import sys
+import qdarktheme
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QFontDatabase
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QListView, QPushButton, QTextEdit, \
-    QComboBox, QAbstractItemView, QHBoxLayout, QFileDialog, QLineEdit
-from qt_material import apply_stylesheet
-
+    QComboBox, QAbstractItemView, QHBoxLayout, QFileDialog, QLineEdit, QSizePolicy
 from thread_merge import AudioMergeThread
 
 # Set logging level to info
@@ -44,17 +43,26 @@ class AudioFileDropWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.label = QLabel('Drag & Drop audio files here or add them manually:')
+        self.label.setStyleSheet("font-weight: bold")
         self.list_view = QListView()
         self.remove_button = QPushButton("Remove Selected")
+        self.remove_button.setStyleSheet("font-weight: bold")
         self.remove_all_button = QPushButton("Remove All")
+        self.remove_all_button.setStyleSheet("font-weight: bold")
         self.add_files_button = QPushButton("Add Files")
+        self.add_files_button.setStyleSheet("font-weight: bold")
         self.label_format = QLabel('Select audio output format:')
+        self.label_format.setStyleSheet("font-weight: bold")
         self.format_combo_box = QComboBox()
         self.move_up_button = QPushButton("Move Up")
+        self.move_up_button.setStyleSheet("font-weight: bold")
         self.move_down_button = QPushButton("Move Down")
+        self.move_down_button.setStyleSheet("font-weight: bold")
         self.output_filename_input = QLineEdit(self)
         self.merge_button = QPushButton("Merge Audio")
+        self.merge_button.setStyleSheet("font-weight: bold")
         self.debug_label = QLabel("FFmpeg debug Information:")
+        self.debug_label.setStyleSheet("font-weight: bold")
         self.ffmpeg_output = QTextEdit(self)
         self.model = QStandardItemModel()
         self.audio_files = {}  # Dictionary to store title-filepath pairs
@@ -67,7 +75,6 @@ class AudioFileDropWidget(QWidget):
 
         layout.addWidget(self.label)
 
-        # Create a QHBoxLayout for the QListView and Remove button
         list_view_layout = QHBoxLayout()
 
         self.list_view.setFixedHeight(200)
@@ -81,20 +88,26 @@ class AudioFileDropWidget(QWidget):
 
         # Add control buttons
         self.remove_button.clicked.connect(self.remove_selected_items)
+        self.remove_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         buttons_layout.addWidget(self.remove_button)
 
         self.remove_all_button.clicked.connect(self.remove_all_items)
+        self.remove_all_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         buttons_layout.addWidget(self.remove_all_button)
 
         self.add_files_button.clicked.connect(self.add_files_dialog)
+        self.add_files_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         buttons_layout.addWidget(self.add_files_button)
 
         # Add move up and move down buttons
         self.move_up_button.clicked.connect(self.move_item_up)
+        self.move_up_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         buttons_layout.addWidget(self.move_up_button)
 
         self.move_down_button.clicked.connect(self.move_item_down)
+        self.move_down_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         buttons_layout.addWidget(self.move_down_button)
+
 
         list_view_layout.addLayout(buttons_layout)
 
@@ -106,26 +119,6 @@ class AudioFileDropWidget(QWidget):
         self.format_combo_box.setView(QListView())
         self.format_combo_box.setFixedWidth(100)
         self.format_combo_box.addItems(extensions)
-        self.format_combo_box.setStyleSheet("""
-    QComboBox {
-        background: #2d2d2d; 
-        color: white;       
-        border: 1px solid gray;
-    }
-    QComboBox:hover {
-        border: 1px solid lightblue;
-    }
-    QComboBox:!enabled {
-        background: #2d2d2d;
-        color: gray;        
-    }
-    QComboBox QAbstractItemView {
-        background: #2d2d2d;
-        color: white;
-        selection-background-color: lightblue;
-        selection-color: black;
-    }
-""")
         layout.addWidget(self.format_combo_box)
 
         # Create a QLineEdit widget for entering the output filename
@@ -165,6 +158,7 @@ class AudioFileDropWidget(QWidget):
         self.list_view.model().modelReset.connect(self.update_button_state)
         self.update_button_state()
         self.check_ffmpeg()
+
 
     def move_item_up(self):
         selected_indexes = self.list_view.selectedIndexes()
@@ -320,8 +314,6 @@ class AudioFileDropWidget(QWidget):
         # Connect the thread's finished signal to append out or err when they are not None
         self.merge_thread.finished.connect(self.thread_merge_finished)
         self.merge_thread.start()
-        # logging.info('ffmpeg stdout: %s', out.decode())
-        # logging.info('ffmpeg stderr: %s', err.decode())
 
     def thread_merge_finished(self, out, err):
         self.ffmpeg_output.append(err) if err else self.ffmpeg_output.append(out) if out else self.ffmpeg_output.append(
@@ -364,13 +356,8 @@ class AudioFileDropApp(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    extra = {
-
-        # Density Scale
-        'density_scale': '-1',
-    }
-    # setup stylesheet
-    apply_stylesheet(app, theme='dark_blue.xml', invert_secondary=False, extra=extra, css_file='style.css')
+    qdarktheme.enable_hi_dpi()
+    qdarktheme.setup_theme("auto")
     window = AudioFileDropApp()
     window.show()
     sys.exit(app.exec_())

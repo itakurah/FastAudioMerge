@@ -56,7 +56,24 @@
 <p align="center">
 <img src="https://github.com/itakurah/FastAudioMerge/blob/main/images/screenshot.jpg"  width="40%" height="40%">
 </p>
-FastAudioMerge allows you to concatenate and encode multiple audio files into a single file using FFmpeg. It supports a wide range of audio formats, including mp3, aac, m4a, wav, flac, ogg, ac3, wma, aiff, mka, and mp2.
+## About The Project
+
+FastAudioMerge is a tool that allows you to **concatenate and encode multiple audio files** into a single file using FFmpeg. It supports a variety of audio formats, including:
+
+- **mp3**
+- **aac**
+- **m4a**
+- **wav**
+- **flac**
+- **ogg**
+- **ac3**
+- **wma**
+- **aiff**
+- **mka**
+- **mp2**
+
+With FastAudioMerge, you can effortlessly combine multiple tracks into a single audio file and convert them into the format of your choice.
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -88,10 +105,11 @@ FastAudioMerge allows you to concatenate and encode multiple audio files into a 
    pip install -r ./requirements.txt
    ```
   
-3. Download FFmpeg and copy FFmpeg.exe into the same directory as ```application.py```
+3. Download FFmpeg
+* Download FFmpeg from <a href="https://www.ffmpeg.org/download.html">FFmpeg official site</a>.
+* Copy ```FFmpeg.exe``` into the same directory as ```application.py```.
 
-
-4. Start FastAudioMerge `application.py`
+4. Run the application
    ```sh
    python application.py
    ```
@@ -104,9 +122,11 @@ FastAudioMerge allows you to concatenate and encode multiple audio files into a 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Select any audio files you would like to concatenate and select the target output format.
+1. **Select Audio Files**: Choose the audio files you'd like to concatenate.
+2. **Select Output Format**: Choose the target format for the resulting audio file.
+3. **Start the Encoding**: Press the merge button and let FastAudioMerge process your files.
 
-**Note**: The encoding time depends on the file size of the input audio files.
+**Note**: The encoding time will vary depending on the size of the input files.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

@@ -59,6 +59,7 @@
 <p align="center">
 <img src="https://github.com/itakurah/FastAudioMerge/blob/main/images/screenshot.jpg"  width="40%" height="40%">
 </p>
+
 FastAudioMerge is a tool that allows you to **concatenate and encode multiple audio files** into a single file using FFmpeg. It supports a variety of audio formats, including:
 
 - **mp3**

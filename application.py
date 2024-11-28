@@ -369,8 +369,9 @@ class AudioFileDropApp(QMainWindow):
 
 
 def main():
-    app = QApplication(sys.argv)
+    # Calling high dpi before creating the app to ensure high dpi is enabled
     qdarktheme.enable_hi_dpi()
+    app = QApplication(sys.argv)
     qdarktheme.setup_theme("auto")
     window = AudioFileDropApp()
     window.show()

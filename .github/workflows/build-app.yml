@@ -12,7 +12,7 @@ jobs:
       - name: Versatile PyInstaller
         uses: sayyid5416/pyinstaller@v1.6.1
         with:
-          python_ver: '3.0'
+          python_ver: '3.9'
           pyinstaller_ver: '==6.11.1'
           spec: 'src/application.py'
           requirements: 'requirements.txt'

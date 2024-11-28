@@ -32,7 +32,7 @@ jobs:
     - name: Build executable with PyInstaller
       run: |
         mkdir build_output
-        cp src/application.py build_output/
+        cp -r src/* build_output/
         cp requirements.txt build_output/
 
         # Run PyInstaller on the Python file inside the temporary directory

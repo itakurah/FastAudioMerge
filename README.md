@@ -17,6 +17,9 @@
     Concatenate multiple audio files into a single audio file! 
     <br />
     <br />
+<p align="center">
+<img src="https://github.com/itakurah/FastAudioMerge/blob/main/images/banner.jpg"  width="40%" height="40%">
+</p>
     <a href="https://github.com/itakurah/FastAudioMerge/issues">Report Bug</a>
     ·
     <a href="https://github.com/itakurah/FastAudioMerge/issues">Request Feature</a>

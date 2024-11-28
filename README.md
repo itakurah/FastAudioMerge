@@ -18,7 +18,7 @@
     <br />
     <br />
 <p align="center">
-<img src="https://github.com/itakurah/FastAudioMerge/blob/main/images/banner.jpg"  width="40%" height="40%">
+<img src="https://github.com/itakurah/FastAudioMerge/blob/main/images/banner.jpg"  width="60%" height="60%">
 </p>
     <a href="https://github.com/itakurah/FastAudioMerge/issues">Report Bug</a>
     ·

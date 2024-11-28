@@ -39,7 +39,7 @@ jobs:
         mkdir build_output
         cp -r src/* build_output/
 
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
+        if ([[ "$RUNNER_OS" == "Windows" ]];) then
           ADD_DATA="thread_merge.py;."
         else
           ADD_DATA="thread_merge.py:."

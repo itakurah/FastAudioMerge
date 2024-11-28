@@ -7,7 +7,7 @@ on:
 
 jobs:
   pyinstaller-build:
-    runs-on: <windows-latest / ubuntu-latest>
+    runs-on: [windows-latest / ubuntu-latest]
     steps:
       - name: Versatile PyInstaller
         uses: sayyid5416/pyinstaller@v1.6.1

@@ -49,7 +49,7 @@ jobs:
         cd build_output
         pip install pyinstaller==6.11.1
         pyinstaller --onefile --name "FastAudioMerge" --windowed --noconsole \
-          --add-data "$ADD_DATA" application.py
+          --add-data "$ADD_DATA" --hidden-import ffmpeg application.py
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3

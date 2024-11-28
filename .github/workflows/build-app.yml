@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   pyinstaller-build:
@@ -24,6 +21,14 @@ jobs:
       with:
         python-version: '3.9'
 
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -33,16 +38,20 @@ jobs:
       run: |
         mkdir build_output
         cp -r src/* build_output/
-        cp requirements.txt build_output/
 
-        # Run PyInstaller on the Python file inside the temporary directory
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          ADD_DATA="thread_merge.py;."
+        else
+          ADD_DATA="thread_merge.py:."
+        fi
+
         cd build_output
         pip install pyinstaller==6.11.1
-        pyinstaller --onefile --name "FastAudioMerge" --windowed --noconsole application.py
+        pyinstaller --onefile --name "FastAudioMerge" --windowed --noconsole \
+          --add-data "$ADD_DATA" application.py
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: FastAudioMerge-${{ matrix.os }}
         path: build_output/dist/FastAudioMerge*
-

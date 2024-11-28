@@ -35,6 +35,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build executable with PyInstaller
+      shell: bash
       run: |
         mkdir build_output
         cp -r src/* build_output/

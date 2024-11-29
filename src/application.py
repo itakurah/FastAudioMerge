@@ -302,10 +302,14 @@ class AudioFileDropWidget(QWidget):
         else:
             self.output_file = "output"
 
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        output_dir = os.path.join(script_dir, "audio")
+        os.makedirs(output_dir, exist_ok=True)
+
         output_filename = f"{self.output_file}.{output_format}"
+        output_path = os.path.join(output_dir, output_filename)
 
         # Check for filename conflict
-        output_path = os.path.abspath(output_filename)
         for title, file_path in self.audio_files.items():
             if os.path.abspath(file_path) == output_path:
                 self.set_error_output("Error: Output filename conflicts with an input file.")
@@ -315,7 +319,7 @@ class AudioFileDropWidget(QWidget):
         # Proceed with encoding
         self.set_normal_output()
         self.ffmpeg_output.setText("Audio file encoding in progress..")
-        self.merge_thread = AudioMergeThread(self.audio_files.values(), self.output_file, output_format, output_codec)
+        self.merge_thread = AudioMergeThread(self.audio_files.values(), self.output_file, output_format, output_codec, script_dir)
         self.merge_thread.finished.connect(self.thread_merge_finished)
         self.merge_thread.start()
 
@@ -329,13 +333,13 @@ class AudioFileDropWidget(QWidget):
         self.merge_button.setEnabled(True)
         self.format_combo_box.setEnabled(True)
 
-    def thread_merge_finished(self, out, err):
+    def thread_merge_finished(self, out, err, output_filepath):
         self.ffmpeg_output.append(err) if err else self.ffmpeg_output.append(out) if out else self.ffmpeg_output.append(
             "An error occured")
         self.ffmpeg_output.append("Audio files successfully encoded!")
         print(self.output_file + '.' + self.format_combo_box.currentText())
         self.ffmpeg_output.append(
-            f"File {self.output_file + '.' + self.format_combo_box.currentText() if not self.output_filename_input.text() else self.output_filename_input.text() + '.' + self.format_combo_box.currentText()} saved to disk.")
+            f"File {output_filepath if not self.output_filename_input.text() else self.output_filename_input.text() + '.' + self.format_combo_box.currentText()} saved to disk.")
         self.merge_button.setEnabled(True)
         self.add_files_button.setEnabled(True)
         self.remove_button.setEnabled(True)

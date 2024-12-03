@@ -52,7 +52,7 @@ jobs:
           --add-data "$ADD_DATA" --hidden-import ffmpeg application.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: FastAudioMerge-${{ matrix.os }}
         path: build_output/dist/FastAudioMerge*

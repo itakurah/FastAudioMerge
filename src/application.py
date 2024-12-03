@@ -1,7 +1,10 @@
 import logging
 import os
 import os.path
+import shutil
 import sys
+from datetime import datetime
+
 import qdarktheme
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QFontDatabase
@@ -98,6 +101,18 @@ class AudioFileDropWidget(QWidget):
         for button in [self.remove_button, self.remove_all_button, self.add_files_button,
                        self.move_up_button, self.move_down_button]:
             button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            button.setStyleSheet("""
+                QPushButton {
+                    font-weight: bold;
+                    background-color: #0078d7;
+                    color: white;
+                    border-radius: 5px;
+                    padding: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #005a9e;
+                }
+            """)
             buttons_layout.addWidget(button)
 
         list_view_layout.addLayout(buttons_layout)
@@ -138,7 +153,7 @@ class AudioFileDropWidget(QWidget):
         self.list_view.model().rowsRemoved.connect(self.update_button_state)
         self.list_view.model().modelReset.connect(self.update_button_state)
         self.update_button_state()
-        self.check_ffmpeg()
+        self.check_ffmpeg_is_available()
 
     def move_item_up(self):
         selected_indexes = self.list_view.selectedIndexes()
@@ -176,17 +191,40 @@ class AudioFileDropWidget(QWidget):
                 new_index = self.model.index(row + 1, 0)
                 self.list_view.setCurrentIndex(new_index)
 
-    # Check for FFmpeg
-    def check_ffmpeg(self):
-        if not os.path.exists('ffmpeg.exe'):
+    def check_ffmpeg_is_available(self):
+        """
+        Check if FFmpeg is available in the system PATH.
+        """
+        if shutil.which('ffmpeg') is None:
+            # Disable relevant buttons and functionalities
+            self.ffmpeg_available = False
             self.merge_button.setEnabled(False)
             self.add_files_button.setEnabled(False)
             self.remove_button.setEnabled(False)
             self.remove_all_button.setEnabled(False)
             self.format_combo_box.setEnabled(False)
             self.output_filename_input.setEnabled(False)
-            self.ffmpeg_output.setText("FFmpeg was not found in the current folder")
+            self.move_up_button.setEnabled(False)
+            self.move_down_button.setEnabled(False)
+            self.list_view.setAcceptDrops(False)
+            self.list_view.setDragEnabled(False)
+            self.list_view.setEnabled(False)
+            self.ffmpeg_output.setText("FFmpeg was not found in the system PATH. Please install FFmpeg and try again.")
             self.ffmpeg_output.setStyleSheet('QTextEdit{color: red;}')
+        else:
+            self.ffmpeg_available = True
+            self.add_files_button.setEnabled(True)
+            self.remove_button.setEnabled(True)
+            self.remove_all_button.setEnabled(True)
+            self.format_combo_box.setEnabled(True)
+            self.output_filename_input.setEnabled(True)
+            self.move_up_button.setEnabled(True)
+            self.move_down_button.setEnabled(True)
+            self.list_view.setAcceptDrops(True)
+            self.list_view.setDragEnabled(True)
+            self.list_view.setEnabled(True)
+            self.ffmpeg_output.clear()
+            self.set_normal_output()
 
     def set_normal_output(self):
         font = "Cascadia Mono"
@@ -217,15 +255,29 @@ class AudioFileDropWidget(QWidget):
             f'Enter output filename (default name: output.{self.format_combo_box.currentText()})')
 
     def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls() and all(self.is_audio_file(url.toLocalFile()) for url in event.mimeData().urls()):
-            event.acceptProposedAction()
+        """
+        Only accept drag events if FFmpeg is available.
+        """
+        if self.ffmpeg_available and event.mimeData().hasUrls():
+            if all(self.is_audio_file(url.toLocalFile()) for url in event.mimeData().urls()):
+                event.acceptProposedAction()
+            else:
+                event.ignore()
+        else:
+            event.ignore()
 
     def dropEvent(self, event):
-        audio_files = [url.toLocalFile() for url in event.mimeData().urls() if self.is_audio_file(url.toLocalFile())]
-        if audio_files:
-            self.label.setText("Dropped audio files:")
-            # Sort the files alphabetically
-            self.update_audio_list(audio_files)
+        """
+        Handle drops only if FFmpeg is available.
+        """
+        if self.ffmpeg_available:
+            audio_files = [url.toLocalFile() for url in event.mimeData().urls() if self.is_audio_file(url.toLocalFile())]
+            if audio_files:
+                self.label.setText("Dropped audio files:")
+                # Sort the files alphabetically
+                self.update_audio_list(audio_files)
+        else:
+            event.ignore()
 
     @staticmethod
     def is_audio_file(file_path):
@@ -298,15 +350,16 @@ class AudioFileDropWidget(QWidget):
         output_codec = format_mapping[output_format]["codec"]
 
         if self.output_filename_input.text():
-            self.output_file = remove_extension(self.output_filename_input.text())
+            base_output_file = remove_extension(self.output_filename_input.text())
         else:
-            self.output_file = "output"
+            base_output_file = "output"
 
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         script_dir = os.path.dirname(os.path.abspath(__file__))
         output_dir = os.path.join(script_dir, "audio")
         os.makedirs(output_dir, exist_ok=True)
 
-        output_filename = f"{self.output_file}.{output_format}"
+        output_filename = f"{base_output_file}_{timestamp}.{output_format}"
         output_path = os.path.join(output_dir, output_filename)
 
         # Check for filename conflict
@@ -319,8 +372,10 @@ class AudioFileDropWidget(QWidget):
         # Proceed with encoding
         self.set_normal_output()
         self.ffmpeg_output.setText("Audio file encoding in progress..")
-        self.merge_thread = AudioMergeThread(self.audio_files.values(), self.output_file, output_format, output_codec, script_dir)
-        self.merge_thread.finished.connect(self.thread_merge_finished)
+        self.merge_thread = AudioMergeThread(self.audio_files.values(), base_output_file, output_format, output_codec,
+                                             script_dir, timestamp=timestamp)
+        self.merge_thread.finished.connect(
+            lambda out, err, path=output_path: self.thread_merge_finished(out, err, path))
         self.merge_thread.start()
 
     def reset_merge_buttons(self):
@@ -334,12 +389,16 @@ class AudioFileDropWidget(QWidget):
         self.format_combo_box.setEnabled(True)
 
     def thread_merge_finished(self, out, err, output_filepath):
-        self.ffmpeg_output.append(err) if err else self.ffmpeg_output.append(out) if out else self.ffmpeg_output.append(
-            "An error occured")
+        if err:
+            self.ffmpeg_output.append(err)
+        elif out:
+            self.ffmpeg_output.append(out)
+        else:
+            self.ffmpeg_output.append("An error occurred")
+
         self.ffmpeg_output.append("Audio files successfully encoded!")
-        print(self.output_file + '.' + self.format_combo_box.currentText())
-        self.ffmpeg_output.append(
-            f"File {output_filepath if not self.output_filename_input.text() else self.output_filename_input.text() + '.' + self.format_combo_box.currentText()} saved to disk.")
+        self.ffmpeg_output.append(f"File saved to disk: {output_filepath}")
+
         self.merge_button.setEnabled(True)
         self.add_files_button.setEnabled(True)
         self.remove_button.setEnabled(True)
@@ -363,6 +422,7 @@ class AudioFileDropWidget(QWidget):
 class AudioFileDropApp(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.ffmpeg_available = False
         self.init_ui()
 
     def init_ui(self):

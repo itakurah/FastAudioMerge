@@ -4,24 +4,28 @@ from PyQt5.QtCore import QThread, pyqtSignal
 
 
 class AudioMergeThread(QThread):
-    finished = pyqtSignal(str, str, str)  # Signal to emit when the audio merge is finished
+    finished = pyqtSignal(str, str, str)
 
-    def __init__(self, input_files, output_file, output_format, output_codec, script_dir):
+    def __init__(self, input_files, output_file, output_format, output_codec, script_dir, timestamp):
         super().__init__()
         self.input_files = input_files
         self.output_file = output_file
         self.output_format = output_format
         self.output_codec = output_codec
         self.script_dir = script_dir
+        self.timestamp = timestamp
 
     def run(self):
         try:
             # Define output directory relative to script location
             output_dir = os.path.join(self.script_dir, "audio")
-            os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
+            os.makedirs(output_dir, exist_ok=True)
 
-            # Construct the full path for the output file
-            output_file_path = os.path.join(output_dir, f"{self.output_file}.{self.output_format}")
+            if self.timestamp:
+                output_filename = f"{self.output_file}_{self.timestamp}.{self.output_format}"
+            else:
+                output_filename = f"{self.output_file}.{self.output_format}"
+            output_file_path = os.path.join(output_dir, output_filename)
 
             # Create input streams for selected files
             input_streams = [ffmpeg.input(str(file_path)) for file_path in self.input_files]
@@ -35,4 +39,4 @@ class AudioMergeThread(QThread):
             self.finished.emit(out.decode('utf-8'), err.decode('utf-8'), output_file_path)
 
         except Exception as e:
-            self.finished.emit(str(e), '')
+            self.finished.emit(str(e), '', '')

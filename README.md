@@ -109,7 +109,10 @@ With FastAudioMerge, you can effortlessly combine multiple tracks into a single 
   
 3. Download FFmpeg
 * Download FFmpeg from <a href="https://www.ffmpeg.org/download.html">FFmpeg official site</a>.
-* Copy ```FFmpeg.exe``` into the same directory as ```application.py```.
+* Make sure to add the FFmpeg path to your system's PATH environment variable.
+
+> [!WARNING]
+> As this program is relying on FFmpeg to encode the audio files, it is essential to have FFmpeg installed on your system. If you haven't installed FFmpeg yet, please download it from the official site and add the FFmpeg path to your system's PATH environment variable.
 
 4. Run the application
    ```sh

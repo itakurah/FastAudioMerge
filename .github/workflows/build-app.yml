@@ -34,6 +34,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Install platform-specific dependencies for PyQt5
+      run: |
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          pip install PyQt5==5.15.4 PyQt5-Qt5==5.15.4
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+          pip install PyQt5==5.15.11 PyQt5-Qt5==5.15.11
+        elif [ "${{ runner.os }}" == "Linux" ]; then
+          pip install PyQt5==5.15.4 PyQt5-Qt5==5.15.4
+        fi
+
     - name: Build executable with PyInstaller
       shell: bash
       run: |

@@ -1,4 +1,4 @@
-name: Create release
+name: Create Release
 
 on:
   push:
@@ -25,24 +25,19 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements_windows.txt', 'requirements_linux.txt', 'requirements_macos.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Install platform-specific dependencies for PyQt5
-      shell: bash
-      run: |
-        if [ "${{ runner.os }}" == "Windows" ]; then
-          pip install PyQt5==5.15.4
-        elif [ "${{ runner.os }}" == "macOS" ]; then
-          pip install PyQt5==5.15.11
-        elif [ "${{ runner.os }}" == "Linux" ]; then
-          pip install PyQt5==5.15.4
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          pip install -r requirements_windows.txt
+        elif [ "${{ runner.os }}" = "Linux" ]; then
+          pip install -r requirements_linux.txt
+        elif [ "${{ runner.os }}" = "macOS" ]; then
+          pip install -r requirements_macos.txt
         fi
 
     - name: Build executable with PyInstaller
@@ -51,7 +46,7 @@ jobs:
         mkdir build_output
         cp -r src/* build_output/
 
-        if [ "$RUNNER_OS" = "Windows" ]; then
+        if [ "${{ runner.os }}" = "Windows" ]; then
           ADD_DATA="thread_merge.py;."
         else
           ADD_DATA="thread_merge.py:."

@@ -40,8 +40,9 @@ jobs:
         else
           pip install -r requirements_windows.txt
         fi
-
+        
     - name: Build executable with PyInstaller on Linux and Windows
+      if: ${{ runner.os == 'Windows' || runner.os == 'Linux' }}
       shell: bash
       run: |
         mkdir build_output

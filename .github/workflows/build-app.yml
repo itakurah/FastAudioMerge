@@ -33,17 +33,12 @@ jobs:
       shell: bash
       run: |
         python -m pip install --upgrade pip
-        if [ "${{ runner.os }}" = "macOS" ]; then
-          # Install dependencies for arm64 architecture
-          arch -arm64 pip install -r requirements_macos.txt
-          # Install dependencies for x86_64 architecture
-          arch -x86_64 pip install -r requirements_macos.txt
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          pip install -r requirements_linux.txt
+        elif [ "${{ runner.os }}" = "macOS" ]; then
+          pip install -r requirements_macos.txt
         else
-          if [ "${{ runner.os }}" = "Linux" ]; then
-            pip install -r requirements_linux.txt
-          else
-            pip install -r requirements_windows.txt
-          fi
+          pip install -r requirements_windows.txt
         fi
         
     - name: Build executable with PyInstaller on Linux and Windows
@@ -63,6 +58,7 @@ jobs:
         mkdir build_output
         cp -r src/* build_output/
         cd build_output
+        arch -x86_64 pip install pyqt5
         pip install pyinstaller==6.11.1
         arch -x86_64 pyinstaller --onefile --windowed --name "FastAudioMerge-x86_64" application.py
 
@@ -73,6 +69,7 @@ jobs:
         mkdir build_output
         cp -r src/* build_output/
         cd build_output
+        arch -arm64 pip install pyqt5
         pip install pyinstaller==6.11.1
         arch -arm64 pyinstaller --onefile --windowed --name "FastAudioMerge-arm64" application.py
 

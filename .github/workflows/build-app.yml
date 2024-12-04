@@ -48,6 +48,13 @@ jobs:
         if [ ! -d "build_output" ]; then
         mkdir build_output
         fi
+        
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          ADD_DATA="thread_merge.py;."
+        else
+          ADD_DATA="thread_merge.py:."
+        fi
+        
         cp -r src/* build_output/
         cd build_output
         pip install pyinstaller==6.11.1
@@ -60,6 +67,13 @@ jobs:
         if [ ! -d "build_output" ]; then
         mkdir build_output
         fi
+        
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          ADD_DATA="thread_merge.py;."
+        else
+          ADD_DATA="thread_merge.py:."
+        fi
+        
         cp -r src/* build_output/
         cd build_output
         pip uninstall -y pyqt5
@@ -74,6 +88,13 @@ jobs:
         if [ ! -d "build_output" ]; then
         mkdir build_output
         fi
+        
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          ADD_DATA="thread_merge.py;."
+        else
+          ADD_DATA="thread_merge.py:."
+        fi
+        
         cp -r src/* build_output/
         cd build_output
         pip uninstall -y pyqt5

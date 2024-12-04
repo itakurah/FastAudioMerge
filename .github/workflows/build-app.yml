@@ -33,12 +33,17 @@ jobs:
       shell: bash
       run: |
         python -m pip install --upgrade pip
-        if [ "${{ runner.os }}" = "Linux" ]; then
-          pip install -r requirements_linux.txt
-        elif [ "${{ runner.os }}" = "macOS" ]; then
-          pip install -r requirements_macos.txt
+        if [ "${{ runner.os }}" = "macOS" ]; then
+          # Install dependencies for arm64 architecture
+          arch -arm64 pip install -r requirements_macos.txt
+          # Install dependencies for x86_64 architecture
+          arch -x86_64 pip install -r requirements_macos.txt
         else
-          pip install -r requirements_windows.txt
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            pip install -r requirements_linux.txt
+          else
+            pip install -r requirements_windows.txt
+          fi
         fi
         
     - name: Build executable with PyInstaller on Linux and Windows

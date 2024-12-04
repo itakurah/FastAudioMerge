@@ -41,16 +41,36 @@ jobs:
           pip install -r requirements_windows.txt
         fi
 
-    - name: Build executable with PyInstaller
+    - name: Build executable with PyInstaller on Linux and Windows
       shell: bash
       run: |
         mkdir build_output
         cp -r src/* build_output/
         cd build_output
         pip install pyinstaller==6.11.1
-        pyinstaller --onefile --windowed --name "FastAudioMerge" --target-arch universal2 application.py
+        pyinstaller --onefile --windowed --name "FastAudioMerge" application.py
 
-    - name: Upload artifact
+    - name: Build executable with PyInstaller for macOS (x86_64)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        mkdir build_output
+        cp -r src/* build_output/
+        cd build_output
+        pip install pyinstaller==6.11.1
+        arch -x86_64 pyinstaller --onefile --windowed --name "FastAudioMerge-x86_64" application.py
+
+    - name: Build executable with PyInstaller for macOS (arm64)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        mkdir build_output
+        cp -r src/* build_output/
+        cd build_output
+        pip install pyinstaller==6.11.1
+        arch -arm64 pyinstaller --onefile --windowed --name "FastAudioMerge-arm64" application.py
+
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: FastAudioMerge-${{ matrix.os }}

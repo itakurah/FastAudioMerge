@@ -45,7 +45,9 @@ jobs:
       if: ${{ runner.os == 'Windows' || runner.os == 'Linux' }}
       shell: bash
       run: |
+        if [ ! -d "build_output" ]; then
         mkdir build_output
+        fi
         cp -r src/* build_output/
         cd build_output
         pip install pyinstaller==6.11.1
@@ -55,7 +57,9 @@ jobs:
       if: runner.os == 'macOS'
       shell: bash
       run: |
+        if [ ! -d "build_output" ]; then
         mkdir build_output
+        fi
         cp -r src/* build_output/
         cd build_output
         pip uninstall -y pyqt5
@@ -67,7 +71,9 @@ jobs:
       if: runner.os == 'macOS'
       shell: bash
       run: |
+        if [ ! -d "build_output" ]; then
         mkdir build_output
+        fi
         cp -r src/* build_output/
         cd build_output
         pip uninstall -y pyqt5

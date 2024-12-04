@@ -58,7 +58,7 @@ jobs:
         cp -r src/* build_output/
         cd build_output
         pip install pyinstaller==6.11.1
-        pyinstaller --onefile --windowed --add-data "$ADD_DATA" --clean --name "FastAudioMerge" application.py
+        pyinstaller --onefile --windowed --add-data "$ADD_DATA" --hidden-import ffmpeg --clean --name "FastAudioMerge" application.py
 
     - name: Build executable with PyInstaller for macOS (x86_64)
       if: runner.os == 'macOS'
@@ -79,7 +79,7 @@ jobs:
         pip uninstall -y pyqt5
         arch -x86_64 pip install pyqt5
         arch -x86_64 pip install pyinstaller==6.11.1
-        arch -x86_64 pyinstaller --onefile --windowed --add-data "$ADD_DATA" --clean --name "FastAudioMerge-x86_64" application.py
+        arch -x86_64 pyinstaller --onefile --windowed --add-data "$ADD_DATA" --hidden-import ffmpeg --clean --name "FastAudioMerge-x86_64" application.py
 
     - name: Build executable with PyInstaller for macOS (arm64)
       if: runner.os == 'macOS'
@@ -100,7 +100,7 @@ jobs:
         pip uninstall -y pyqt5
         arch -arm64 pip install pyqt5
         arch -arm64 pip install pyinstaller==6.11.1
-        arch -arm64 pyinstaller --onefile --windowed --add-data "$ADD_DATA" --clean --name "FastAudioMerge-arm64" application.py
+        arch -arm64 pyinstaller --onefile --windowed --add-data "$ADD_DATA" --hidden-import ffmpeg --clean --name "FastAudioMerge-arm64" application.py
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4

@@ -46,17 +46,9 @@ jobs:
       run: |
         mkdir build_output
         cp -r src/* build_output/
-
-        if [ "${{ runner.os }}" = "Windows" ]; then
-          ADD_DATA="thread_merge.py;."
-        else
-          ADD_DATA="thread_merge.py:."
-        fi
-
         cd build_output
         pip install pyinstaller==6.11.1
-        pyinstaller --onefile --name "FastAudioMerge" --windowed --noconsole \
-          --add-data "$ADD_DATA" --hidden-import ffmpeg application.py
+        pyinstaller --onefile --windowed --name "FastAudioMerge" --target-arch universal2 application.py
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4

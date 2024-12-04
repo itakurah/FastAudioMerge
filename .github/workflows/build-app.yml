@@ -32,13 +32,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ "${{ runner.os }}" = "Windows" ]; then
-          pip install -r requirements_windows.txt
-        elif [ "${{ runner.os }}" = "Linux" ]; then
+        if [ "${{ runner.os }}" = "Linux" ]; then
           pip install -r requirements_linux.txt
         elif [ "${{ runner.os }}" = "macOS" ]; then
           pip install -r requirements_macos.txt
-        fi
+        else
+          pip install -r requirements_windows.txt
+      shell: bash
 
     - name: Build executable with PyInstaller
       shell: bash
